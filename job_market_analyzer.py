@@ -47,6 +47,30 @@ class JobMarketAnalyzer:
         titles = [job.get('job_title', '') for job in matching_jobs]
         return Counter(titles).most_common(10)
 
+    def get_location_statistics(self, location: str) -> Dict[str, Any]:
+        """Get statistics for jobs in a specific location"""
+        matching_jobs = self._filter_jobs_by_location(location)
+        
+        salaries = []
+        companies = []
+        titles = []
+        
+        for job in matching_jobs:
+            if 'pay_median_glassdoor' in job:
+                salaries.append(job['pay_median_glassdoor'])
+            if 'company_name' in job:
+                companies.append(job['company_name'])
+            if 'job_title' in job:
+                titles.append(job['job_title'])
+
+        return {
+            'total_jobs': len(matching_jobs),
+            'avg_salary': mean(salaries) if salaries else 0,
+            'salary_range': (min(salaries), max(salaries)) if salaries else (0, 0),
+            'top_companies': Counter(companies).most_common(5),
+            'top_titles': Counter(titles).most_common(5)
+        }
+
     def _filter_jobs_by_keyword(self, keyword: str) -> List[Dict[str, Any]]:
         """Filter jobs based on keyword in title or description"""
         keyword = keyword.lower()
@@ -54,4 +78,13 @@ class JobMarketAnalyzer:
             job for job in self.jobs
             if keyword in job.get('job_title', '').lower() or 
                keyword in job.get('job_overview', '').lower()
+        ]
+
+    def _filter_jobs_by_location(self, location: str) -> List[Dict[str, Any]]:
+        """Filter jobs based on location"""
+        location = location.lower()
+        return [
+            job for job in self.jobs
+            if location in job.get('job_location', '').lower() or
+               location in job.get('discovery_input', {}).get('location', '').lower()
         ]

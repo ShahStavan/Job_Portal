@@ -67,3 +67,18 @@ class ChatbotPromptManager:
             keyword=self.current_keyword,
             titles=titles_text
         )
+
+    def get_location_analysis_prompt(self, stats: Dict[str, Any], location: str) -> str:
+        """Generate prompt for location-based analysis"""
+        companies = "\n".join([f"- {comp}: {count} positions" for comp, count in stats['top_companies']])
+        titles = "\n".join([f"- {title}: {count} openings" for title, count in stats['top_titles']])
+        
+        return DESCRIPTION_PROMPTS["location_analysis"].format(
+            location=location,
+            total_jobs=stats['total_jobs'],
+            avg_salary=stats['avg_salary'],
+            min_salary=stats['salary_range'][0],
+            max_salary=stats['salary_range'][1],
+            companies=companies,
+            titles=titles
+        )

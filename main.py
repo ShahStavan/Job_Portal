@@ -50,11 +50,12 @@ class JobPortalChatbot:
 
     def display_menu(self) -> None:
         print("\n=== Job Portal Assistant ===")
-        print("1. Analyze Job Market") # Add this option
+        print("1. Analyze Job Market")
         print("2. Get Job Summary")
         print("3. Company Analysis")
-        print("4. Benefits Information")
-        print("5. Exit")
+        print("4. Benefits Information") 
+        print("5. Location Analysis")  # Add this option
+        print("6. Exit")
         print("========================")
 
     async def handle_choice(self, choice: str) -> bool:
@@ -84,7 +85,12 @@ class JobPortalChatbot:
             print("\nBenefits Analysis:")
             print(response)
         
-        elif choice == "5":
+        elif choice == "5":  # Add location analysis handler
+            location = input("Enter location to analyze (e.g. 'India'): ")
+            await self.analyze_location(location)
+            return True
+        
+        elif choice == "6":
             print("Thank you for using Job Portal Assistant!")
             return False
         
@@ -111,6 +117,20 @@ class JobPortalChatbot:
             print(response)
             print("-" * 80)
 
+    async def analyze_location(self, location: str) -> None:
+        """Analyze jobs in a specific location"""
+        stats = self.job_analyzer.get_location_statistics(location)
+        
+        if stats['total_jobs'] == 0:
+            print(f"\nNo jobs found in {location}")
+            return
+            
+        prompt = self.prompt_manager.get_location_analysis_prompt(stats, location)
+        response = await self.get_llm_response(prompt)
+        print("\nLocation Analysis:")
+        print(response)
+        print("-" * 80)
+
     async def run(self) -> None:
         print("Welcome to Job Portal Assistant!")
         
@@ -131,7 +151,7 @@ class JobPortalChatbot:
         running = True
         while running:
             self.display_menu()
-            choice = input("Enter your choice (1-5): ")
+            choice = input("Enter your choice (1-6): ")
             running = await self.handle_choice(choice)
 
 async def main():

@@ -40,6 +40,21 @@ DESCRIPTION_PROMPTS = {
     {titles}
     
     What do these titles indicate about current industry trends and skill requirements?
+    """,
+    
+    "location_analysis": """Analyze job opportunities in {location}:
+
+    Total Jobs Available: {total_jobs}
+    Average Salary: ${avg_salary:,.2f}
+    Salary Range: ${min_salary:,.2f} - ${max_salary:,.2f}
+
+    Top Companies Hiring:
+    {companies}
+
+    Most Common Job Titles:
+    {titles}
+
+    What insights can be drawn about the job market in {location}?
     """
 }
 

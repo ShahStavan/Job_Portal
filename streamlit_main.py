@@ -123,10 +123,16 @@ class StreamlitJobPortal:
         # Sidebar navigation
         analysis_type = st.sidebar.radio(
             "Choose Analysis Type",
-            ["Job Market Analysis", "Company Analysis"]
+            ["Job Market Analysis", "Company Analysis", "Location Analysis"]  # Add location option
         )
 
-        if analysis_type == "Job Market Analysis":
+        if analysis_type == "Location Analysis":
+            st.header("Location Analysis")
+            location = st.text_input("Enter location (e.g. 'India')")
+            if location:
+                self.show_location_analysis(location)
+
+        elif analysis_type == "Job Market Analysis":
             st.header("Job Market Analysis")
             keyword = st.text_input("Enter job keyword (e.g., 'software developer')")
             if keyword:
@@ -143,6 +149,31 @@ class StreamlitJobPortal:
             st.markdown("---")
             st.markdown("### About")
             st.write("This tool helps analyze job market trends and company insights using real-time data.")
+
+    def show_location_analysis(self, location: str):
+        """Display location-based analysis"""
+        stats = self.job_analyzer.get_location_statistics(location)
+        
+        if stats['total_jobs'] == 0:
+            st.error(f"No jobs found in {location}")
+            return
+
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Market Statistics")
+            st.metric("Total Jobs", stats['total_jobs'])
+            st.metric("Average Salary", f"${stats['avg_salary']:,.2f}")
+            st.metric("Salary Range", f"${stats['salary_range'][0]:,.2f} - ${stats['salary_range'][1]:,.2f}")
+
+        with col2:
+            st.subheader("Top Companies")
+            for company, count in stats['top_companies']:
+                st.write(f"• {company}: {count} positions")
+
+        st.subheader("Common Job Titles")
+        for title, count in stats['top_titles']:
+            st.write(f"• {title}: {count} openings")
 
 def run_async_app():
     """Run the Streamlit app with async support"""
